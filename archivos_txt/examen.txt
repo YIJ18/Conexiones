@@ -1,0 +1,50 @@
+1. select COUNT(manager_id) from employees GROUP BY manager_id;
+
+2.select * from departments d left join locations l USING(location_id)  WHERE d.department_name = 'IT' GROUP BY location_id ;
+
+3.select e.first_name, COUNT(*) from dependents d right join employees e using(employee_id) GROUP BY employee_id ORDER BY COUNT(*) DESC;
+
+4.select department_name, COUNT(employee_id) from employees e right join departments d USING(department_id) GROUP BY department_id order by count(employee_id) desc LIMIT 1;
+
+5.select SUM(salary) from employees e left join jobs j using(job_id) WHERE job_title= 'Programmer';
+
+
+6.select COUNT(employee_id), first_name from employees  GROUP BY manager_id ORDER BY COUNT(employee_id) DESC LIMIT 1;
+
+7.select region_name, region_id,count(country_name) from regions r left join countries using(region_id) GROUP BY region_id ORDER BY count(country_name) DESC LIMIT 1;
+
+8.select first_name, last_name, DATEDIFF(NOW(), hire_date)/365.25 anos_chamba  from employees ORDER BY hire_date ;
+
+9. select AVG(salary) from employees e left join jobs j using(job_id) WHERE job_title= 'Sales Manager';
+
+10. 
+select region_name, department_name, CONCAT(street_address,', ',postal_code,', ', city,state_province,', ',country_name) Direccion from departments left join locations using(location_id) left join countries using(country_id) left join regions using(region_id);
+
+
+DROP PROCEDURE IF EXISTS Num_empleados;
+
+DELIMITER $
+
+CREATE PROCEDURE Num_empleados(IN nombre_declarar VARCHAR(50), OUT num_emp INT)
+BEGIN
+DECLARE nombre_procedimiento VARCHAR(50);
+DECLARE num_emp_proc INT;
+
+DECLARE cur CURSOR FOR
+select first_name, count(*) from employees e left join jobs j using(job_id) GROUP BY job_id;
+
+OPEN cur;
+FETCH cur INTO nombre_procedimiento, num_emp_proc;
+WHILE nombre_procedimiento = nombre_declarar DO
+FETCH cur INTO nombre_procedimiento, num_emp_proc;
+END WHILE;
+CLOSE cur;
+
+IF nombre_procedimiento = nombre_declarar THEN
+SET num_emp =  num_emp_proc;
+ELSE
+SET num_emp = -1;
+END IF;
+
+END$
+DELIMITER ;

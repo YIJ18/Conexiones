@@ -1,0 +1,146 @@
+
+db.air_airlines.aggregate([{$group: { _id: "$country", cantidad: { $sum: 1 }}}]).pretty();
+
+
+db.air_airlines.aggregate([{
+{$match: {        country: {          $eq: Canada       }     },
+{ $group: { _id: "$country", totalQuantity: { $sum: 1 } }}
+]).pretty();
+
+db.air_airate([{ $match: {size: {$eq: "large"}} }, {$group: { _id: "$size", cantidad: {$sum:1}}}]);
+
+
+db.air_airlines. $match: { country: {$eq: "Canada"}}, {$group: { _id: "     $country", cantidad: {$sum:1}}}]);
+
+
+
+
+
+
+
+ssh -Y ic22ijc@antares.dci.uia.mx
+ mongo 127.0.0.1:27017 -u "ic22ijc" -p "227242"
+
+1.- De la colección "movies", despliega una lista de cuántas películas hay por país.
+db.movies.aggregate([{$group: { _id: "$country", cantidad: { $sum: 1 }}}]).pretty();
+
+
+2.- De la colección "movies", despliega cuántas películas no tiene país
+
+db.movies.aggregate([
+   { 
+     $match: { 
+       country: { 
+         $eq: null
+       }
+     }
+   },
+   {
+     $group: {
+       _id: "$country",
+       cantidad: {
+         $sum: 1
+       }
+     }
+   }
+ ]).pretty();
+
+
+
+3.- De la colección "orders", despliega de los nombres de pizzas del tamaño "large" con el total de pizzas que hay de cada "name".
+
+db.orders.aggregate([{ $match: {size: {$eq: "large"}} }, {$group: { _id: "$size", cantidad: {$sum:1}}}]);
+
+db.orders.aggregate([{ $match: {size: "large"}}, {$group: { _id: "$name", cantidad: {$sum:1}}}]);
+
+
+4.- De la colección "sales", despliega una lista por "item" con el número de documentos que hay por "item".
+
+db.sales.aggregate([{$group: {_id: "$item", cantidad: {$sum:1}}}]);
+
+
+5.- De la colección "sales", despliega una lista por "item" con el total de cantidades ("quantity") que hay por "item".
+
+ db.sales.aggregate([ {$group: {_id: "$item", cantidad: {$sum: "$quantity"}}}]);
+
+
+
+1.- ¿Cuánto se ha vendido en total por el item “abc”?
+
+db.sales.aggregate([
+{ $match: { item: "abc" } },
+{ $group: { _id: "$item", cantidad: { $sum: { $multiply: ["$price", "$quantity"] } } } }
+]);
+
+
+2.- ¿De qué item se han vendido más pizzas?
+
+db.sales.aggregate([
+{ $group: { _id: "$item", totalQuantity: { $sum: "$quantity" } } },
+{ $sort: { totalQuantity: -1 } },
+{ $limit: 1 }
+])
+
+3.- ¿Qué item ha hecho ganar más dinero a la tienda?
+db.sales.aggregate([
+  {
+    $project: {
+      item: 1,
+      totalRevenue: { $multiply: ["$quantity", "$price"] }
+    }
+  },
+  {
+    $group: {
+      _id: "$item",
+      totalRevenue: { $sum: "$totalRevenue" }
+    }
+  },
+  {
+    $sort: { totalRevenue: -1 }
+  },
+  {
+    $limit: 1
+  }
+])
+
+
+4.- ¿Cuál es la pizza más cara?
+
+db.orders.aggregate([
+  {
+    $sort: { price: -1 }
+  },
+  {
+    $limit: 1
+  }
+])
+
+
+5.- ¿De qué pizza hay más pizzas?
+
+db.orders.aggregate([
+  {
+    $group: {
+      _id: "$name",
+      totalQuantity: { $sum: "$quantity" }
+    }
+  },
+  {
+    $sort: { totalQuantity: -1 }
+  },
+  {
+    $limit: 1
+  }
+])
+
+
+
+6.- ¿Cuál es la ganancia si se venden todas pizzas del punto anterior?
+db.orders.aggregate([
+  {
+    $group: {
+      _id: "$name",
+      total: { $sum: { $multiply: ["$price", "$quantity"] } }
+    }
+  }
+])
